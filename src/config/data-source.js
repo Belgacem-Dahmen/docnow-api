@@ -14,11 +14,14 @@ dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 export const AppDataSource = new DataSource({
   type: "postgres",
-  url: process.env.DEV_DATABASE_URL,
+  url: process.env.DATABASE_URL,
   synchronize: true,
   logging: true,
   entities: [User],
   migrations: [],
   subscribers: [],
-  ssl: { rejectUnauthorized: false },
+  ssl: process.env.NODE_ENV === "production"
+      ? { rejectUnauthorized: true }
+      : false,
 });
+

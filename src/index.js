@@ -18,6 +18,8 @@ const app = express();
 app.use(cors({ credentials: true }));
 app.use(express.json()); // 
 app.use("/api", routes);
+console.log("Database URL:", process.env.DATABASE_URL);
+console.log("ENV URL:", process.env.NODE_ENV);
 
 AppDataSource.initialize()
   .then(() => {
