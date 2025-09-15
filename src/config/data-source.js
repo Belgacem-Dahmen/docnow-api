@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import { User } from "../entities/User.js";
+import { Patient } from "../entities/Patient.js";
+import { Doctor } from "../entities/Doctor.js";
 
 // Fix __dirname in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -17,11 +19,11 @@ export const AppDataSource = new DataSource({
   url: process.env.DATABASE_URL,
   synchronize: true,
   logging: true,
-  entities: [User],
+  entities: [User, Patient, Doctor],
   migrations: [],
   subscribers: [],
-  ssl: process.env.NODE_ENV === "production"
+  ssl:
+    process.env.NODE_ENV === "production"
       ? { rejectUnauthorized: true }
       : false,
 });
-

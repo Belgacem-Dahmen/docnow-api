@@ -2,8 +2,12 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { AppDataSource } from "../config/data-source.js";
 import { User } from "../entities/User.js";
+import { Patient } from "../entities/Patient.js";
+import { Doctor } from "../entities/Doctor.js";
 
 const userRepository = AppDataSource.getRepository(User);
+const doctorRepository = AppDataSource.getRepository(Doctor);
+const patientRepository = AppDataSource.getRepository(Patient);
 
 // Generate JWT
 const generateToken = (user) => {
@@ -14,7 +18,19 @@ const generateToken = (user) => {
 
 export const register = async (req, res) => {
   try {
-    const { name, email, password, age, gender, avatar, role } = req.body;
+    const {
+      name,
+      email,
+      password,
+      age,
+      gender,
+      avatar,
+      specialization,
+      contactNumber,
+      addressText,
+      addressCoordinates,
+      role,
+    } = req.body;
 
     const existingUser = await userRepository.findOne({ where: { email } });
     if (existingUser) {
@@ -36,6 +52,25 @@ export const register = async (req, res) => {
 
     await userRepository.save(newUser);
 
+    // ✅ Create doctor record if role = doctor
+    if (newUser.role === "doctor") {
+      const newDoctor = doctorRepository.create({
+        userId: newUser.id,
+        specialization,
+        contactNumber,
+        addressText,
+        addressCoordinates, // expects JSON { lat: ..., lng: ... }
+      });
+      await doctorRepository.save(newDoctor);
+    }
+
+    // ✅ Create patient record if role = patient
+    else if (newUser.role === "patient") {
+      const newPatient = patientRepository.create({
+        userId: newUser.id,
+      });
+      await patientRepository.save(newPatient);
+    }
     const token = generateToken(newUser);
 
     res.status(201).json({
