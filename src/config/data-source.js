@@ -14,7 +14,7 @@ dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 export const AppDataSource = new DataSource({
   type: "postgres",
-  url: process.env.DEV_DATABASE_URL,
+  url: process.env.PROD_DATABASE_URL,
   synchronize: true,
   logging: true,
   entities: [User],
