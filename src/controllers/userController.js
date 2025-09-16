@@ -7,35 +7,9 @@ const userRepository = AppDataSource.getRepository(User);
 const doctorRepository = AppDataSource.getRepository(Doctor);
 const patientRepository = AppDataSource.getRepository(Patient);
 
-const sanitizeUser = (user) => {
-  if (!user) return null;
-  const { password, ...safeUser } = user;
-  return safeUser;
-};
 
-// 🟢 Get all users (with optional role filter)
-// export const getUsers = async (req, res) => {
-//   try {
-//     const { role } = req.query;
 
-//     const users = await userRepository.find({
-//       where: role ? { role } : {},
-//     });
 
-//     for (const user of users) {
-//       if (user.role === "doctor") {
-//         user.doctor = await doctorRepository.findOne({ where: { userId: user.id } });
-//       } else if (user.role === "patient") {
-//         user.patient = await patientRepository.findOne({ where: { userId: user.id } });
-//       }
-//     }
-
-//     res.json(users.map(sanitizeUser));
-//   } catch (error) {
-//     console.error("Get users error:", error);
-//     res.status(500).json({ error: "Server error" });
-//   }
-// };
 export const getUsers = async (req, res) => {
   try {
     const { role } = req.query;

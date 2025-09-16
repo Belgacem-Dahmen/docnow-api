@@ -2,6 +2,7 @@
 import { AppDataSource } from "../config/data-source.js";
 import { Patient } from "../entities/Patient.js";
 import { User } from "../entities/User.js";
+import sanitizeUser from "../helpers/sanitizeUser.js";
 
 const patientRepository = AppDataSource.getRepository(Patient);
 const userRepository = AppDataSource.getRepository(User);
@@ -40,6 +41,7 @@ export const getPatientById = async (req, res) => {
 };
 
 // 🟢 Update patient
+
 export const updatePatient = async (req, res) => {
   try {
     const { id } = req.params;
@@ -74,7 +76,11 @@ export const updatePatient = async (req, res) => {
       relations: ["user"],
     });
 
-    res.json(updatedPatient);
+    // ✅ sanitize user before sending response
+    res.json({
+      ...updatedPatient,
+      user: sanitizeUser(updatedPatient.user),
+    });
   } catch (error) {
     console.error("Update patient error:", error);
     res.status(500).json({ error: "Server error" });

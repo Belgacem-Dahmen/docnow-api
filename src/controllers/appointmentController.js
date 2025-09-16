@@ -15,7 +15,7 @@ export const createAppointment = async (req, res) => {
     if (req.user.role !== "patient") {
       return res
         .status(403)
-        .json({ error: "Only patients can book appointments" });
+        .json({ error: "Only patients and admins can book appointments" });
     }
 
     const patient = await patientRepository.findOne({

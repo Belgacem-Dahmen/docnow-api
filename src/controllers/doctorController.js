@@ -1,6 +1,7 @@
 import { AppDataSource } from "../config/data-source.js";
 import { User } from "../entities/User.js";
 import { Doctor } from "../entities/Doctor.js";
+import sanitizeUser from "../helpers/sanitizeUser.js";
 
 const userRepository = AppDataSource.getRepository(User);
 const doctorRepository = AppDataSource.getRepository(Doctor);
@@ -29,18 +30,19 @@ export const getDoctorById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const doctor = await userRepository
-      .createQueryBuilder("user")
-      .leftJoinAndSelect("user.doctor", "doctor")
-      .where("user.role = :role", { role: "doctor" })
-      .andWhere("user.id = :id", { id })
-      .getOne();
+    const doctor = await doctorRepository.findOne({
+      where: { id: parseInt(id) },
+      relations: ["user"],
+    });
 
     if (!doctor) {
       return res.status(404).json({ error: "Doctor not found" });
     }
 
-    const { password, ...safeDoctor } = doctor;
+    const safeDoctor = {
+      ...doctor,
+      user: sanitizeUser(doctor.user),
+    };
 
     res.json(safeDoctor);
   } catch (error) {
@@ -84,7 +86,11 @@ export const updateDoctor = async (req, res) => {
       relations: ["user"],
     });
 
-    res.json(updatedDoctor);
+    // ✅ sanitize user before sending response
+    res.json({
+      ...updatedDoctor,
+      user: sanitizeUser(updatedDoctor.user),
+    });
   } catch (error) {
     console.error("Update doctor error:", error);
     res.status(500).json({ error: "Server error" });
@@ -96,7 +102,9 @@ export const deleteDoctor = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const user = await userRepository.findOne({ where: { id, role: "doctor" } });
+    const user = await userRepository.findOne({
+      where: { id, role: "doctor" },
+    });
     if (!user) {
       return res.status(404).json({ error: "Doctor not found" });
     }
