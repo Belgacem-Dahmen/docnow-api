@@ -5,13 +5,13 @@ import {
   cancelAppointment,
   getAppointments,
 } from "../controllers/appointmentController.js";
-import { protect } from "../middlewares/auth.js";
+import { auth, shouldBe } from "../middlewares/auth.js";
 
 const router = Router();
+router.get("/", auth, shouldBe("patient"),getAppointments); // patient/doctor/admin
+router.post("/", auth, createAppointment); // patient
+router.put("/:id", auth, updateAppointment); // patient/admin
+router.delete("/:id", auth, shouldBe("admin", "doctor"), cancelAppointment); // patient/admin
 
-router.post("/", protect, createAppointment);          // patient
-router.put("/:id", protect, updateAppointment);        // patient/admin
-router.delete("/:id", protect, cancelAppointment);     // patient/admin
-router.get("/", protect, getAppointments);             // patient/doctor/admin
 
 export default router;

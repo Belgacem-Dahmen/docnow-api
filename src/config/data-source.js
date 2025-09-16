@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import { User } from "../entities/User.js";
 import { Patient } from "../entities/Patient.js";
 import { Doctor } from "../entities/Doctor.js";
+import { Appointment } from "../entities/Appointment.js";
 
 // Fix __dirname in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -19,7 +20,7 @@ export const AppDataSource = new DataSource({
   url: process.env.DATABASE_URL,
   synchronize: true,
   logging: true,
-  entities: [User, Patient, Doctor],
+  entities: [User, Patient, Doctor,Appointment],
   migrations: [],
   subscribers: [],
   ssl:

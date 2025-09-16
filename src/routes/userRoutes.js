@@ -5,7 +5,6 @@ import {
   updateUser,
   deleteUser,
 } from "../controllers/userController.js";
-import { authorize, protect } from "../middlewares/auth.js";
 
 const router = Router();
 

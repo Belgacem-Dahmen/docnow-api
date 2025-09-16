@@ -5,7 +5,7 @@ import { User } from "../entities/User.js";
 const userRepository = AppDataSource.getRepository(User);
 
 // 🟢 Authenticate user with JWT
-export const protect = async (req, res, next) => {
+export const auth = async (req, res, next) => {
   let token;
 
   try {
@@ -22,7 +22,9 @@ export const protect = async (req, res, next) => {
       });
 
       if (!user) {
-        return res.status(401).json({ error: "Not authorized, user not found" });
+        return res
+          .status(401)
+          .json({ error: "Not authorized, user not found" });
       }
 
       req.user = user; // attach user to request
@@ -37,7 +39,7 @@ export const protect = async (req, res, next) => {
 };
 
 // 🔒 Restrict access by role(s)
-export const authorize = (...roles) => {
+export const shouldBe = (...roles) => {
   return (req, res, next) => {
     if (!req.user || !roles.includes(req.user.role)) {
       return res

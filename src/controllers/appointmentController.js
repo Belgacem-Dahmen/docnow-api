@@ -107,7 +107,8 @@ export const cancelAppointment = async (req, res) => {
 export const getAppointments = async (req, res) => {
   try {
     let appointments;
-
+    console.log(req.user);
+    
     if (req.user.role === "doctor") {
       const doctor = await doctorRepository.findOne({ where: { userId: req.user.id } });
       appointments = await appointmentRepository.find({
