@@ -25,5 +25,10 @@ export const Patient = new EntitySchema({
       joinColumn: { name: "userId" },
       onDelete: "CASCADE",
     },
+    appointments: {
+      type: "one-to-many",
+      target: "Appointment",
+      inverseSide: "doctor",
+    },
   },
 });

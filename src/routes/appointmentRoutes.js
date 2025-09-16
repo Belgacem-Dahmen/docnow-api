@@ -4,14 +4,16 @@ import {
   updateAppointment,
   cancelAppointment,
   getAppointments,
+  getAppointmentById,
 } from "../controllers/appointmentController.js";
 import { auth, shouldBe } from "../middlewares/auth.js";
 
 const router = Router();
-router.get("/", auth, shouldBe("patient"),getAppointments); // patient/doctor/admin
-router.post("/", auth, createAppointment); // patient
-router.put("/:id", auth, updateAppointment); // patient/admin
-router.delete("/:id", auth, shouldBe("admin", "doctor"), cancelAppointment); // patient/admin
+router.get("/", auth, getAppointments); // patient/doctor/admin
+router.get("/:id", auth, shouldBe("doctor", "admin"), getAppointmentById); // patient/doctor/admin
 
+router.post("/", auth, shouldBe("patient"), createAppointment); // patient
+router.put("/:id", auth, shouldBe("doctor", "admin"), updateAppointment); // patient/admin
+router.delete("/:id", auth, shouldBe("doctor", "admin"), cancelAppointment); // patient/admin
 
 export default router;

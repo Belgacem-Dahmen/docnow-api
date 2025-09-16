@@ -13,10 +13,14 @@ export const createAppointment = async (req, res) => {
     const { doctorId, date } = req.body;
 
     if (req.user.role !== "patient") {
-      return res.status(403).json({ error: "Only patients can book appointments" });
+      return res
+        .status(403)
+        .json({ error: "Only patients can book appointments" });
     }
 
-    const patient = await patientRepository.findOne({ where: { userId: req.user.id } });
+    const patient = await patientRepository.findOne({
+      where: { userId: req.user.id },
+    });
     if (!patient) {
       return res.status(404).json({ error: "Patient profile not found" });
     }
@@ -57,11 +61,18 @@ export const updateAppointment = async (req, res) => {
     }
 
     // Role check
-    if (req.user.role === "patient" && appointment.patient.userId !== req.user.id) {
-      return res.status(403).json({ error: "Not allowed to update this appointment" });
+    if (
+      req.user.role === "patient" &&
+      appointment.patient.userId !== req.user.id
+    ) {
+      return res
+        .status(403)
+        .json({ error: "Not allowed to update this appointment" });
     }
     if (req.user.role === "doctor") {
-      return res.status(403).json({ error: "Doctors cannot update appointments" });
+      return res
+        .status(403)
+        .json({ error: "Doctors cannot update appointments" });
     }
 
     if (date) appointment.date = date;
@@ -89,8 +100,13 @@ export const cancelAppointment = async (req, res) => {
       return res.status(404).json({ error: "Appointment not found" });
     }
 
-    if (req.user.role === "patient" && appointment.patient.userId !== req.user.id) {
-      return res.status(403).json({ error: "Not allowed to cancel this appointment" });
+    if (
+      req.user.role === "patient" &&
+      appointment.patient.userId !== req.user.id
+    ) {
+      return res
+        .status(403)
+        .json({ error: "Not allowed to cancel this appointment" });
     }
 
     appointment.status = "cancelled";
@@ -107,22 +123,27 @@ export const cancelAppointment = async (req, res) => {
 export const getAppointments = async (req, res) => {
   try {
     let appointments;
-    console.log(req.user);
-    
+
     if (req.user.role === "doctor") {
-      const doctor = await doctorRepository.findOne({ where: { userId: req.user.id } });
+      const doctor = await doctorRepository.findOne({
+        where: { userId: req.user.id },
+      });
       appointments = await appointmentRepository.find({
         where: { doctor },
         relations: ["patient", "doctor"],
       });
     } else if (req.user.role === "patient") {
-      const patient = await patientRepository.findOne({ where: { userId: req.user.id } });
+      const patient = await patientRepository.findOne({
+        where: { userId: req.user.id },
+      });
       appointments = await appointmentRepository.find({
         where: { patient },
         relations: ["patient", "doctor"],
       });
     } else if (req.user.role === "admin") {
-      appointments = await appointmentRepository.find({ relations: ["patient", "doctor"] });
+      appointments = await appointmentRepository.find({
+        relations: ["patient", "doctor"],
+      });
     }
 
     res.json(appointments);
@@ -130,4 +151,21 @@ export const getAppointments = async (req, res) => {
     console.error("Get appointments error:", error);
     res.status(500).json({ error: "Server error" });
   }
+};
+
+export const getAppointmentById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const appointment = await appointmentRepository.findOne({
+      where: { id },
+      relations: ["patient", "doctor"],
+    });
+
+    if (!appointment) {
+      return res.status(404).json({ error: "Appointment not found" });
+    } else
+      return res.status(200).json({
+        data: appointment,
+      });
+  } catch (error) {}
 };

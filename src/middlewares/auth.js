@@ -27,7 +27,7 @@ export const auth = async (req, res, next) => {
           .json({ error: "Not authorized, user not found" });
       }
 
-      req.user = user; // attach user to request
+      req.user = user;
       next();
     } else {
       return res.status(401).json({ error: "Not authorized, no token" });
