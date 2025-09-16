@@ -1,9 +1,10 @@
 // controllers/patientController.js
 import { AppDataSource } from "../config/data-source.js";
 import { Patient } from "../entities/Patient.js";
+import { User } from "../entities/User.js";
 
 const patientRepository = AppDataSource.getRepository(Patient);
-
+const userRepository = AppDataSource.getRepository(User);
 // 🟢 Get all patients
 export const getPatients = async (req, res) => {
   try {
@@ -42,18 +43,38 @@ export const getPatientById = async (req, res) => {
 export const updatePatient = async (req, res) => {
   try {
     const { id } = req.params;
-    const updates = req.body;
+    const { patient: patientData, user: userData } = req.body;
 
-    let patient = await patientRepository.findOne({ where: { id: parseInt(id) } });
+    // 🟢 find patient with relation to user
+    const patient = await patientRepository.findOne({
+      where: { id: parseInt(id) },
+      relations: ["user"],
+    });
 
     if (!patient) {
       return res.status(404).json({ error: "Patient not found" });
     }
 
-    patientRepository.merge(patient, updates);
-    const result = await patientRepository.save(patient);
+    // 🟢 update patient info
+    if (patientData) {
+      patientRepository.merge(patient, patientData);
+      await patientRepository.save(patient);
+    }
 
-    res.json(result);
+    // 🟢 update user info
+    if (userData) {
+      const user = patient.user; // already joined
+      userRepository.merge(user, userData);
+      await userRepository.save(user);
+    }
+
+    // 🟢 fetch updated patient with user
+    const updatedPatient = await patientRepository.findOne({
+      where: { id: parseInt(id) },
+      relations: ["user"],
+    });
+
+    res.json(updatedPatient);
   } catch (error) {
     console.error("Update patient error:", error);
     res.status(500).json({ error: "Server error" });
@@ -65,7 +86,9 @@ export const deletePatient = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const patient = await patientRepository.findOne({ where: { id: parseInt(id) } });
+    const patient = await patientRepository.findOne({
+      where: { id: parseInt(id) },
+    });
 
     if (!patient) {
       return res.status(404).json({ error: "Patient not found" });

@@ -53,31 +53,38 @@ export const getDoctorById = async (req, res) => {
 export const updateDoctor = async (req, res) => {
   try {
     const { id } = req.params;
-    const { specialization, rating, casesCount, contactNumber, addressText, addressCoordinates } = req.body;
+    const { doctor: doctorData, user: userData } = req.body;
 
-    // Find user with role doctor
-    const user = await userRepository.findOne({ where: { id, role: "doctor" } });
-    if (!user) {
+    // 🟢 find doctor with relation to user
+    const doctor = await doctorRepository.findOne({
+      where: { id: parseInt(id) },
+      relations: ["user"],
+    });
+
+    if (!doctor) {
       return res.status(404).json({ error: "Doctor not found" });
     }
 
-    // Find doctor profile
-    let doctor = await doctorRepository.findOne({ where: { userId: user.id } });
-    if (!doctor) {
-      doctor = doctorRepository.create({ userId: user.id });
+    // 🟢 update doctor info
+    if (doctorData) {
+      doctorRepository.merge(doctor, doctorData);
+      await doctorRepository.save(doctor);
     }
 
-    // Update doctor fields
-    if (specialization !== undefined) doctor.specialization = specialization;
-    if (rating !== undefined) doctor.rating = rating;
-    if (casesCount !== undefined) doctor.casesCount = casesCount;
-    if (contactNumber !== undefined) doctor.contactNumber = contactNumber;
-    if (addressText !== undefined) doctor.addressText = addressText;
-    if (addressCoordinates !== undefined) doctor.addressCoordinates = addressCoordinates;
+    // 🟢 update user info
+    if (userData) {
+      const user = doctor.user; // already joined
+      userRepository.merge(user, userData);
+      await userRepository.save(user);
+    }
 
-    await doctorRepository.save(doctor);
+    // 🟢 fetch updated doctor with user
+    const updatedDoctor = await doctorRepository.findOne({
+      where: { id: parseInt(id) },
+      relations: ["user"],
+    });
 
-    res.json({ message: "Doctor updated successfully", doctor });
+    res.json(updatedDoctor);
   } catch (error) {
     console.error("Update doctor error:", error);
     res.status(500).json({ error: "Server error" });
