@@ -16,7 +16,7 @@ export const AppDataSource = new DataSource({
   type: "postgres",
   url: process.env.DATABASE_URL,
   synchronize: true,
-  logging: false,
+   logging: process.env.NODE_ENV === "development" ? true : ["error"],
   entities: [User, Patient, Doctor, Appointment],
   migrations: [],
   subscribers: [],
