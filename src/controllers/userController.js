@@ -7,9 +7,6 @@ const userRepository = AppDataSource.getRepository(User);
 const doctorRepository = AppDataSource.getRepository(Doctor);
 const patientRepository = AppDataSource.getRepository(Patient);
 
-
-
-
 export const getUsers = async (req, res) => {
   try {
     const { role } = req.query;
@@ -25,7 +22,6 @@ export const getUsers = async (req, res) => {
 
     const users = await query.getMany();
 
-    // Remove password before sending response
     const safeUsers = users.map(({ password, ...rest }) => rest);
 
     res.json(safeUsers);
@@ -34,7 +30,7 @@ export const getUsers = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
-// 🟢 Get single user by ID
+
 export const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -44,7 +40,6 @@ export const getUserById = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Load role-specific relation only if needed
     if (user.role === "doctor") {
       user.doctor = await doctorRepository.findOne({
         where: { userId: user.id },
@@ -62,7 +57,6 @@ export const getUserById = async (req, res) => {
   }
 };
 
-// 🟡 Update user (basic fields + role-specific updates)
 export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
@@ -82,8 +76,6 @@ export const updateUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-
-    // Update base user fields
     if (name) user.name = name;
     if (age) user.age = age;
     if (gender) user.gender = gender;
@@ -92,7 +84,6 @@ export const updateUser = async (req, res) => {
 
     await userRepository.save(user);
 
-    // Update doctor-specific fields
     if (user.role === "doctor") {
       let doctor = await doctorRepository.findOne({
         where: { userId: user.id },
@@ -108,7 +99,6 @@ export const updateUser = async (req, res) => {
       await doctorRepository.save(doctor);
     }
 
-    // Update patient-specific fields
     if (user.role === "patient") {
       let patient = await patientRepository.findOne({
         where: { userId: user.id },
@@ -116,7 +106,7 @@ export const updateUser = async (req, res) => {
       if (!patient) {
         patient = patientRepository.create({ userId: user.id });
       }
-      // you can extend patient-specific updates here
+
       await patientRepository.save(patient);
     }
 
@@ -127,7 +117,6 @@ export const updateUser = async (req, res) => {
   }
 };
 
-// 🔴 Delete user (cascade removes doctor/patient)
 export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;

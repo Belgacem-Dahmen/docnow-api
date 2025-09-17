@@ -7,7 +7,6 @@ const appointmentRepository = AppDataSource.getRepository(Appointment);
 const doctorRepository = AppDataSource.getRepository(Doctor);
 const patientRepository = AppDataSource.getRepository(Patient);
 
-// 🟢 Create appointment (patients only)
 export const createAppointment = async (req, res) => {
   try {
     const { doctorId, date } = req.body;
@@ -45,7 +44,6 @@ export const createAppointment = async (req, res) => {
   }
 };
 
-// 🟡 Update appointment (patients can update their own, admin can update all)
 export const updateAppointment = async (req, res) => {
   try {
     const { id } = req.params;
@@ -60,7 +58,6 @@ export const updateAppointment = async (req, res) => {
       return res.status(404).json({ error: "Appointment not found" });
     }
 
-    // Role check
     if (
       req.user.role === "patient" &&
       appointment.patient.userId !== req.user.id
@@ -86,7 +83,6 @@ export const updateAppointment = async (req, res) => {
   }
 };
 
-// 🔴 Cancel appointment (patients: their own, admin: all)
 export const cancelAppointment = async (req, res) => {
   try {
     const { id } = req.params;
@@ -119,7 +115,6 @@ export const cancelAppointment = async (req, res) => {
   }
 };
 
-// 👀 View appointments
 export const getAppointments = async (req, res) => {
   try {
     let appointments;

@@ -9,7 +9,6 @@ const userRepository = AppDataSource.getRepository(User);
 const doctorRepository = AppDataSource.getRepository(Doctor);
 const patientRepository = AppDataSource.getRepository(Patient);
 
-// Generate JWT
 const generateToken = (user) => {
   return jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || "1d",
@@ -52,20 +51,16 @@ export const register = async (req, res) => {
 
     await userRepository.save(newUser);
 
-    // ✅ Create doctor record if role = doctor
     if (newUser.role === "doctor") {
       const newDoctor = doctorRepository.create({
         userId: newUser.id,
         specialization,
         contactNumber,
         addressText,
-        addressCoordinates, // expects JSON { lat: ..., lng: ... }
+        addressCoordinates,
       });
       await doctorRepository.save(newDoctor);
-    }
-
-    // ✅ Create patient record if role = patient
-    else if (newUser.role === "patient") {
+    } else if (newUser.role === "patient") {
       const newPatient = patientRepository.create({
         userId: newUser.id,
       });

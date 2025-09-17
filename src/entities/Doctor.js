@@ -39,7 +39,7 @@ export const Doctor = new EntitySchema({
     },
     addressCoordinates: {
       type: "json",
-      nullable: true, // expects { lat: number, lng: number }
+      nullable: true,
     },
   },
   relations: {
@@ -53,6 +53,6 @@ export const Doctor = new EntitySchema({
       type: "one-to-many",
       target: "Appointment",
       inverseSide: "doctor",
-    }
+    },
   },
 });

@@ -11,23 +11,17 @@ import { appointmentSchema } from "../validation/appointmentValidation.js";
 import { validate } from "../middlewares/validate.js";
 
 const router = Router();
-router.get("/", auth, getAppointments); // patient/doctor/admin
-router.get("/:id", auth, shouldBe("doctor", "admin"), getAppointmentById); // patient/doctor/admin
+router.get("/", auth, getAppointments);
+router.get("/:id", auth, shouldBe("doctor", "admin"), getAppointmentById);
 
-router.post(
-  "/",
-  auth,
-  // shouldBe("patient"),
-  validate(appointmentSchema),
-  createAppointment
-); // patient
+router.post("/", auth, validate(appointmentSchema), createAppointment);
 router.put(
   "/:id",
   auth,
   shouldBe("doctor", "admin"),
   validate(appointmentSchema),
   updateAppointment
-); // patient/admin
-router.delete("/:id", auth, shouldBe("doctor", "admin"), cancelAppointment); // patient/admin
+);
+router.delete("/:id", auth, shouldBe("doctor", "admin"), cancelAppointment);
 
 export default router;

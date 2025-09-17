@@ -8,11 +8,8 @@ import { Patient } from "../entities/Patient.js";
 import { Doctor } from "../entities/Doctor.js";
 import { Appointment } from "../entities/Appointment.js";
 
-// Fix __dirname in ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// Load .env from project root (one level above /src usually)
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 export const AppDataSource = new DataSource({
@@ -20,7 +17,7 @@ export const AppDataSource = new DataSource({
   url: process.env.DATABASE_URL,
   synchronize: true,
   logging: true,
-  entities: [User, Patient, Doctor,Appointment],
+  entities: [User, Patient, Doctor, Appointment],
   migrations: [],
   subscribers: [],
   ssl:

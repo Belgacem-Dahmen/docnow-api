@@ -4,7 +4,6 @@ import { User } from "../entities/User.js";
 
 const userRepository = AppDataSource.getRepository(User);
 
-// 🟢 Authenticate user with JWT
 export const auth = async (req, res, next) => {
   let token;
 
@@ -38,7 +37,6 @@ export const auth = async (req, res, next) => {
   }
 };
 
-// 🔒 Restrict access by role(s)
 export const shouldBe = (...roles) => {
   return (req, res, next) => {
     if (!req.user || !roles.includes(req.user.role)) {

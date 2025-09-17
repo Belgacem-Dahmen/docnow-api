@@ -6,7 +6,6 @@ import sanitizeUser from "../helpers/sanitizeUser.js";
 const userRepository = AppDataSource.getRepository(User);
 const doctorRepository = AppDataSource.getRepository(Doctor);
 
-// 🟢 Get all doctors
 export const getDoctors = async (req, res) => {
   try {
     const doctors = await userRepository
@@ -15,7 +14,6 @@ export const getDoctors = async (req, res) => {
       .where("user.role = :role", { role: "doctor" })
       .getMany();
 
-    // Remove password field
     const safeDoctors = doctors.map(({ password, ...rest }) => rest);
 
     res.json(safeDoctors);
@@ -25,7 +23,6 @@ export const getDoctors = async (req, res) => {
   }
 };
 
-// 🟢 Get single doctor by User ID
 export const getDoctorById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -51,13 +48,11 @@ export const getDoctorById = async (req, res) => {
   }
 };
 
-// 🟡 Update doctor by User ID
 export const updateDoctor = async (req, res) => {
   try {
     const { id } = req.params;
     const { doctor: doctorData, user: userData } = req.body;
 
-    // 🟢 find doctor with relation to user
     const doctor = await doctorRepository.findOne({
       where: { id: parseInt(id) },
       relations: ["user"],
@@ -67,26 +62,22 @@ export const updateDoctor = async (req, res) => {
       return res.status(404).json({ error: "Doctor not found" });
     }
 
-    // 🟢 update doctor info
     if (doctorData) {
       doctorRepository.merge(doctor, doctorData);
       await doctorRepository.save(doctor);
     }
 
-    // 🟢 update user info
     if (userData) {
-      const user = doctor.user; // already joined
+      const user = doctor.user;
       userRepository.merge(user, userData);
       await userRepository.save(user);
     }
 
-    // 🟢 fetch updated doctor with user
     const updatedDoctor = await doctorRepository.findOne({
       where: { id: parseInt(id) },
       relations: ["user"],
     });
 
-    // ✅ sanitize user before sending response
     res.json({
       ...updatedDoctor,
       user: sanitizeUser(updatedDoctor.user),
@@ -96,8 +87,6 @@ export const updateDoctor = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
-
-// 🔴 Delete doctor by User ID
 export const deleteDoctor = async (req, res) => {
   try {
     const { id } = req.params;

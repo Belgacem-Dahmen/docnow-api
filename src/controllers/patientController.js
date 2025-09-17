@@ -1,4 +1,3 @@
-// controllers/patientController.js
 import { AppDataSource } from "../config/data-source.js";
 import { Patient } from "../entities/Patient.js";
 import { User } from "../entities/User.js";
@@ -6,11 +5,10 @@ import sanitizeUser from "../helpers/sanitizeUser.js";
 
 const patientRepository = AppDataSource.getRepository(Patient);
 const userRepository = AppDataSource.getRepository(User);
-// 🟢 Get all patients
 export const getPatients = async (req, res) => {
   try {
     const patients = await patientRepository.find({
-      relations: ["user"], // include user info if needed
+      relations: ["user"],
     });
     res.json(patients);
   } catch (error) {
@@ -19,7 +17,6 @@ export const getPatients = async (req, res) => {
   }
 };
 
-// 🟢 Get patient by ID
 export const getPatientById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -40,14 +37,11 @@ export const getPatientById = async (req, res) => {
   }
 };
 
-// 🟢 Update patient
-
 export const updatePatient = async (req, res) => {
   try {
     const { id } = req.params;
     const { patient: patientData, user: userData } = req.body;
 
-    // 🟢 find patient with relation to user
     const patient = await patientRepository.findOne({
       where: { id: parseInt(id) },
       relations: ["user"],
@@ -57,26 +51,22 @@ export const updatePatient = async (req, res) => {
       return res.status(404).json({ error: "Patient not found" });
     }
 
-    // 🟢 update patient info
     if (patientData) {
       patientRepository.merge(patient, patientData);
       await patientRepository.save(patient);
     }
 
-    // 🟢 update user info
     if (userData) {
-      const user = patient.user; // already joined
+      const user = patient.user;
       userRepository.merge(user, userData);
       await userRepository.save(user);
     }
 
-    // 🟢 fetch updated patient with user
     const updatedPatient = await patientRepository.findOne({
       where: { id: parseInt(id) },
       relations: ["user"],
     });
 
-    // ✅ sanitize user before sending response
     res.json({
       ...updatedPatient,
       user: sanitizeUser(updatedPatient.user),
@@ -86,8 +76,6 @@ export const updatePatient = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
-
-// 🟢 Delete patient
 export const deletePatient = async (req, res) => {
   try {
     const { id } = req.params;
