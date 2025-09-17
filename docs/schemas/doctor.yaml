@@ -1,0 +1,20 @@
+Doctor:
+  type: object
+  properties:
+    id:
+      type: integer
+      example: 10
+    specialization:
+      type: string
+      example: Cardiologist
+    contactNumber:
+      type: string
+      example: "+216-55-123-456"
+    addressText:
+      type: string
+      example: "123 Main St, Tunis"
+    addressCoordinates:
+      type: string
+      example: "36.8065,10.1815"
+    user:
+      $ref: "#/components/schemas/User"

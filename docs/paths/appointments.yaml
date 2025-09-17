@@ -1,0 +1,171 @@
+/appointments:
+  get:
+    summary: Get appointments for the logged-in user
+    description: 
+      - Admins get all appointments.
+      - Doctors get only their appointments.
+      - Patients get only their appointments.
+    tags: [Appointments]
+    security:
+      - bearerAuth: []
+    responses:
+      "200":
+        description: List of appointments
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Appointment'
+      "500":
+        description: Server error
+  post:
+    summary: Create a new appointment
+    description: Only **patients** and **admins** can create appointments.
+    tags: [Appointments]
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [doctorId, date]
+            properties:
+              doctorId:
+                type: integer
+                example: 1
+              patientId:
+                type: integer
+                example: 2
+                description: Required only when an admin books for a patient
+              date:
+                type: string
+                format: date-time
+                example: 2025-09-20T10:00:00Z
+    responses:
+      "201":
+        description: Appointment booked successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Appointment booked
+                appointment:
+                  $ref: '#/components/schemas/Appointment'
+      "400":
+        description: patientId is required for admin booking
+      "403":
+        description: Only patients or admins can create appointments
+      "404":
+        description: Doctor or patient not found
+      "500":
+        description: Server error
+
+/appointments/{id}:
+  get:
+    summary: Get appointment by ID
+    tags: [Appointments]
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    responses:
+      "200":
+        description: Appointment details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '#/components/schemas/Appointment'
+      "404":
+        description: Appointment not found
+      "500":
+        description: Server error
+  put:
+    summary: Update an appointment
+    description: Patients can update only their own appointments. Doctors are not allowed.
+    tags: [Appointments]
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date-time
+                example: 2025-09-25T15:00:00Z
+              status:
+                type: string
+                enum: [pending, confirmed, cancelled]
+                example: confirmed
+    responses:
+      "200":
+        description: Appointment updated
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Appointment updated
+                appointment:
+                  $ref: '#/components/schemas/Appointment'
+      "403":
+        description: Not allowed to update this appointment
+      "404":
+        description: Appointment not found
+      "500":
+        description: Server error
+  delete:
+    summary: Cancel an appointment
+    description: Patients can cancel their own appointments. Admins can cancel any.
+    tags: [Appointments]
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    responses:
+      "200":
+        description: Appointment cancelled
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Appointment cancelled
+                appointment:
+                  $ref: '#/components/schemas/Appointment'
+      "403":
+        description: Not allowed to cancel this appointment
+      "404":
+        description: Appointment not found
+      "500":
+        description: Server error

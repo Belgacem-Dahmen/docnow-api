@@ -1,0 +1,58 @@
+User:
+  type: object
+  properties:
+    id:
+      type: integer
+      example: 1
+    name:
+      type: string
+      example: John Doe
+    email:
+      type: string
+      example: john@example.com
+    age:
+      type: integer
+      example: 28
+    gender:
+      type: string
+      enum: [male, female, other]
+      example: male
+    avatar:
+      type: string
+      format: uri
+      example: https://example.com/avatar.png
+    role:
+      type: string
+      enum: [admin, doctor, patient]
+      example: doctor
+    doctor:
+      type: object
+      nullable: true
+      properties:
+        specialization:
+          type: string
+          example: Cardiologist
+        contactNumber:
+          type: string
+          example: "+216-55-123-456"
+        addressText:
+          type: string
+          example: "123 Main St, Tunis"
+        addressCoordinates:
+          type: string
+          example: "36.8065,10.1815"
+    patient:
+      type: object
+      nullable: true
+      properties:
+        medicalHistory:
+          type: string
+          example: Diabetes type 2
+    createdAt:
+      type: string
+      format: date-time
+      example: 2025-09-17T10:15:30Z
+    updatedAt:
+      type: string
+      format: date-time
+      example: 2025-09-17T12:00:00Z

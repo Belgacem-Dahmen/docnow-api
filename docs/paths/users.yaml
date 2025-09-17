@@ -1,0 +1,131 @@
+/users:
+  get:
+    summary: Get all users
+    tags: [Users]
+    parameters:
+      - in: query
+        name: role
+        schema:
+          type: string
+          enum: [admin, doctor, patient]
+        description: Filter users by role
+    responses:
+      "200":
+        description: List of users (without password field)
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+      "500":
+        description: Server error
+
+/users/{id}:
+  get:
+    summary: Get user by ID
+    tags: [Users]
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    responses:
+      "200":
+        description: User details (with doctor/patient profile if applicable)
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      "404":
+        description: User not found
+      "500":
+        description: Server error
+  put:
+    summary: Update a user
+    tags: [Users]
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                example: John Doe
+              age:
+                type: integer
+                example: 30
+              gender:
+                type: string
+                enum: [male, female, other]
+                example: male
+              avatar:
+                type: string
+                format: uri
+                example: https://example.com/avatar.png
+              role:
+                type: string
+                enum: [admin, doctor, patient]
+                example: doctor
+              specialization:
+                type: string
+                example: Cardiologist
+              contactNumber:
+                type: string
+                example: "+216-55-123-456"
+              addressText:
+                type: string
+                example: "123 Main St, Tunis"
+              addressCoordinates:
+                type: string
+                example: "36.8065,10.1815"
+    responses:
+      "200":
+        description: User updated successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: User updated successfully
+                user:
+                  $ref: '#/components/schemas/User'
+      "404":
+        description: User not found
+      "500":
+        description: Server error
+  delete:
+    summary: Delete a user
+    tags: [Users]
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    responses:
+      "200":
+        description: User deleted successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: User deleted successfully
+      "404":
+        description: User not found
+      "500":
+        description: Server error

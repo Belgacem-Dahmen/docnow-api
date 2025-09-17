@@ -1,0 +1,27 @@
+openapi: 3.0.0
+info:
+  title: DocNow API
+  description: API documentation for the DocNow medical appointment system
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:5000/api
+    description: Local development server
+  - url: https://dev-docnow-api.onrender.com/api
+    description: Dev server (Render)
+  - url: https://prod-docnow-api.onrender.com/api
+    description: Production server
+
+tags:
+  - name: Auth
+    description: Authentication endpoints
+  - name: Users
+    description: Manage system users
+  - name: Doctors
+    description: Manage doctor profiles
+  - name: Patients
+    description: Manage patient profiles
+  - name: Appointments
+    description: Manage appointments between doctors and patients
+
+paths: {}   # will be merged in index.js

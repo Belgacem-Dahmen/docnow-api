@@ -1,0 +1,18 @@
+Appointment:
+  type: object
+  properties:
+    id:
+      type: integer
+      example: 15
+    date:
+      type: string
+      format: date-time
+      example: 2025-09-20T10:00:00Z
+    status:
+      type: string
+      enum: [pending, confirmed, cancelled]
+      example: pending
+    doctor:
+      $ref: '#/components/schemas/Doctor'
+    patient:
+      $ref: '#/components/schemas/Patient'

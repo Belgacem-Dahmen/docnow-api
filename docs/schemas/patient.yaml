@@ -1,0 +1,11 @@
+Patient:
+  type: object
+  properties:
+    id:
+      type: integer
+      example: 5
+    medicalHistory:
+      type: string
+      example: "Diabetes type 2"
+    user:
+      $ref: '#/components/schemas/User'

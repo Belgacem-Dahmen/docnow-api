@@ -7,10 +7,11 @@ import { AppDataSource } from "./config/data-source.js";
 import routes from "./routes/index.js";
 import { loggerMiddleware } from "./middlewares/logger.js";
 import helmet from "helmet";
+import swaggerUi from "swagger-ui-express";
+import swaggerDocument from "../docs/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 const app = express();
@@ -24,6 +25,7 @@ app.use(
 );
 
 app.use(express.json());
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use("/api", routes);
 
 AppDataSource.initialize()
@@ -33,6 +35,7 @@ AppDataSource.initialize()
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
       console.log(`🚀 Server running at http://localhost:${PORT}`);
+      console.log("📚 Docs available at http://localhost:5000/api/docs");
     });
   })
   .catch((err) => {
