@@ -4,19 +4,17 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import { AppDataSource } from "./config/data-source.js";
-import routes from "./routes/index.js"; //
+import routes from "./routes/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 const app = express();
 
-// Middleware
 app.use(cors({ credentials: true }));
-app.use(express.json()); // 
+app.use(express.json());
 app.use("/api", routes);
 
 AppDataSource.initialize()
