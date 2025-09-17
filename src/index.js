@@ -27,7 +27,11 @@ app.use(
 app.use(express.json());
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use("/api", routes);
-// Health check
+app.get("/", (req, res) => {
+  res.send(
+    "🚀 DocNow API is running! Use /api/... for endpoints or visit documentation /api/docs"
+  );
+});
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
 });
