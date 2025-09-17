@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import { AppDataSource } from "./config/data-source.js";
 import routes from "./routes/index.js";
 import { loggerMiddleware } from "./middlewares/logger.js";
+import helmet from "helmet";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,6 +16,13 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") });
 const app = express();
 app.use(loggerMiddleware);
 app.use(cors({ credentials: true }));
+app.use(
+  helmet({
+    contentSecurityPolicy: true,
+    crossOriginEmbedderPolicy: false,
+  })
+);
+
 app.use(express.json());
 app.use("/api", routes);
 
