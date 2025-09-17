@@ -9,26 +9,41 @@ const patientRepository = AppDataSource.getRepository(Patient);
 
 export const createAppointment = async (req, res) => {
   try {
-    const { doctorId, date } = req.body;
+    const { doctorId, date, patientId } = req.body;
 
-    if (req.user.role !== "patient") {
-      return res
-        .status(403)
-        .json({ error: "Only patients and admins can book appointments" });
+    let patient;
+
+    if (req.user.role === "patient") {
+      // Patient booking for themselves
+      patient = await patientRepository.findOne({
+        where: { userId: req.user.id },
+      });
+      if (!patient) {
+        return res.status(404).json({ error: "Patient profile not found" });
+      }
+    } else if (req.user.role === "admin") {
+      // Admin booking for any patient (must provide patientId)
+      if (!patientId) {
+        return res.status(400).json({ error: "patientId is required for admin booking" });
+      }
+      patient = await patientRepository.findOne({
+        where: { id: patientId },
+      });
+      if (!patient) {
+        return res.status(404).json({ error: "Patient profile not found" });
+      }
+    } else {
+      // Doctors or other roles not allowed here
+      return res.status(403).json({ error: "Only patients or admins can create appointments" });
     }
 
-    const patient = await patientRepository.findOne({
-      where: { userId: req.user.id },
-    });
-    if (!patient) {
-      return res.status(404).json({ error: "Patient profile not found" });
-    }
-
+    // Validate doctor
     const doctor = await doctorRepository.findOne({ where: { id: doctorId } });
     if (!doctor) {
       return res.status(404).json({ error: "Doctor not found" });
     }
 
+    // Create appointment
     const appointment = appointmentRepository.create({
       doctor,
       patient,

@@ -14,7 +14,7 @@ const router = Router();
 router.get("/", auth, getAppointments);
 router.get("/:id", auth, shouldBe("doctor", "admin"), getAppointmentById);
 
-router.post("/", auth, validate(appointmentSchema), createAppointment);
+router.post("/", auth, shouldBe("doctor", "admin"), validate(appointmentSchema), createAppointment);
 router.put(
   "/:id",
   auth,
