@@ -50,7 +50,7 @@ export const getUserById = async (req, res) => {
       });
     }
 
-    res.json(user);
+    res.json((({ password, ...safeUser }) => safeUser)(user));
   } catch (error) {
     console.error("Get user error:", error);
     res.status(500).json({ error: "Server error" });
