@@ -4,6 +4,12 @@ import { AppDataSource } from "../config/data-source.js";
 import { User } from "../entities/User.js";
 import { Patient } from "../entities/Patient.js";
 import { Doctor } from "../entities/Doctor.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { uploadAvatar } from "../helpers/avatar.js";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const userRepository = AppDataSource.getRepository(User);
 const doctorRepository = AppDataSource.getRepository(Doctor);
@@ -23,13 +29,17 @@ export const register = async (req, res) => {
       password,
       age,
       gender,
-      avatar,
       specialization,
       contactNumber,
       addressText,
       addressCoordinates,
       role,
     } = req.body;
+
+    let avatarUrl = null;
+    if (req.file) {
+      avatarUrl = uploadAvatar(req.file, req);
+    }
 
     const existingUser = await userRepository.findOne({ where: { email } });
     if (existingUser) {
@@ -45,7 +55,7 @@ export const register = async (req, res) => {
       password: hashedPassword,
       age,
       gender,
-      avatar,
+      avatar: avatarUrl,
       role: role || "user",
     });
 
@@ -76,6 +86,7 @@ export const register = async (req, res) => {
         name: newUser.name,
         email: newUser.email,
         role: newUser.role,
+        avatar: newUser.avatar,
       },
     });
   } catch (error) {
