@@ -5,7 +5,7 @@
     requestBody:
       required: true
       content:
-        application/json:
+        multipart/form-data:   # 🔥 Accepts files + fields
           schema:
             type: object
             required: [name, email, password, role]
@@ -28,10 +28,6 @@
                 type: string
                 enum: [male, female, other]
                 example: male
-              avatar:
-                type: string
-                format: uri
-                example: https://example.com/avatar.png
               role:
                 type: string
                 enum: [admin, doctor, patient]
@@ -48,6 +44,9 @@
               addressCoordinates:
                 type: string
                 example: "36.8065,10.1815"
+              avatar:        # 🔥 file upload
+                type: string
+                format: binary
     responses:
       "201":
         description: User registered successfully
@@ -76,94 +75,6 @@
                     role:
                       type: string
                       example: patient
-
-/auth/login:
-  post:
-    summary: User login
-    tags: [Auth]
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            type: object
-            required: [email, password]
-            properties:
-              email:
-                type: string
-                format: email
-                example: patient@test.com
-              password:
-                type: string
-                format: password
-                example: 123456
-    responses:
-      "200":
-        description: Login successful
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-                  example: Login successful
-                token:
-                  type: string
-                user:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                      example: 1
-                    role:
+                    avatar:     # 🔥 now included in response
                       type: string
-                      example: patient
-
-/auth/logout:
-  post:
-    summary: Logout user
-    tags: [Auth]
-    security:
-      - bearerAuth: []
-    responses:
-      "200":
-        description: Logout successful
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-                  example: Logout successful
-
-/auth/verify:
-  get:
-    summary: Verify user token
-    tags: [Auth]
-    security:
-      - bearerAuth: []
-    responses:
-      "200":
-        description: Token is valid
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-                  example: true
-                user:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                      example: 1
-                    email:
-                      type: string
-                      example: patient@test.com
-                    role:
-                      type: string
-                      example: patient
+                      example: https://dev-docnow-api.onrender.com/uploads/avatars/avatar.png

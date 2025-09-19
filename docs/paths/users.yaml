@@ -1,26 +1,3 @@
-/users:
-  get:
-    summary: Get all users
-    tags: [Users]
-    parameters:
-      - in: query
-        name: role
-        schema:
-          type: string
-          enum: [admin, doctor, patient]
-        description: Filter users by role
-    responses:
-      "200":
-        description: List of users (without password field)
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/User'
-      "500":
-        description: Server error
-
 /users/{id}:
   get:
     summary: Get user by ID
@@ -54,7 +31,7 @@
     requestBody:
       required: true
       content:
-        application/json:
+        multipart/form-data:   # 🔥 update avec fichiers
           schema:
             type: object
             properties:
@@ -68,10 +45,6 @@
                 type: string
                 enum: [male, female, other]
                 example: male
-              avatar:
-                type: string
-                format: uri
-                example: https://example.com/avatar.png
               role:
                 type: string
                 enum: [admin, doctor, patient]
@@ -88,6 +61,9 @@
               addressCoordinates:
                 type: string
                 example: "36.8065,10.1815"
+              avatar:              # 🔥 file upload
+                type: string
+                format: binary
     responses:
       "200":
         description: User updated successfully
@@ -116,7 +92,7 @@
           type: integer
     responses:
       "200":
-        description: User deleted successfully
+        description: User and related data deleted successfully
         content:
           application/json:
             schema:
@@ -124,7 +100,7 @@
               properties:
                 message:
                   type: string
-                  example: User deleted successfully
+                  example: User and related data deleted successfully
       "404":
         description: User not found
       "500":
