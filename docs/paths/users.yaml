@@ -1,46 +1,29 @@
-/users/{id}:
-  get:
-    summary: Get user by ID
-    tags: [Users]
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: integer
-    responses:
-      "200":
-        description: User details (with doctor/patient profile if applicable)
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-      "404":
-        description: User not found
-      "500":
-        description: Server error
-  put:
-    summary: Update a user
-    tags: [Users]
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: integer
+/auth/register:
+  post:
+    summary: Register a new user
+    tags: [Auth]
     requestBody:
       required: true
       content:
-        multipart/form-data:   # 🔥 update avec fichiers
+        multipart/form-data:   # 🔥 Accepts files + fields
           schema:
             type: object
+            required: [name, email, password, role]
             properties:
               name:
                 type: string
-                example: John Doe
+                example: Khaled Mansour
+              email:
+                type: string
+                format: email
+                example: patient@test.com
+              password:
+                type: string
+                format: password
+                example: 123456
               age:
                 type: integer
-                example: 30
+                example: 28
               gender:
                 type: string
                 enum: [male, female, other]
@@ -48,7 +31,7 @@
               role:
                 type: string
                 enum: [admin, doctor, patient]
-                example: doctor
+                example: patient
               specialization:
                 type: string
                 example: Cardiologist
@@ -61,12 +44,12 @@
               addressCoordinates:
                 type: string
                 example: "36.8065,10.1815"
-              avatar:              # 🔥 file upload
+              avatar:        # 🔥 file upload
                 type: string
                 format: binary
     responses:
-      "200":
-        description: User updated successfully
+      "201":
+        description: User registered successfully
         content:
           application/json:
             schema:
@@ -74,25 +57,51 @@
               properties:
                 message:
                   type: string
-                  example: User updated successfully
+                  example: User registered successfully
+                token:
+                  type: string
                 user:
-                  $ref: '#/components/schemas/User'
-      "404":
-        description: User not found
-      "500":
-        description: Server error
-  delete:
-    summary: Delete a user
-    tags: [Users]
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: integer
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    name:
+                      type: string
+                      example: Khaled Mansour
+                    email:
+                      type: string
+                      example: patient@test.com
+                    role:
+                      type: string
+                      example: patient
+                    avatar:     # 🔥 now included in response
+                      type: string
+                      example: https://dev-docnow-api.onrender.com/uploads/avatars/avatar.png
+
+/auth/login:
+  post:
+    summary: User login
+    tags: [Auth]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [email, password]
+            properties:
+              email:
+                type: string
+                format: email
+                example: patient@test.com
+              password:
+                type: string
+                format: password
+                example: 123456
     responses:
       "200":
-        description: User and related data deleted successfully
+        description: Login successful
         content:
           application/json:
             schema:
@@ -100,8 +109,63 @@
               properties:
                 message:
                   type: string
-                  example: User and related data deleted successfully
-      "404":
-        description: User not found
-      "500":
-        description: Server error
+                  example: Login successful
+                token:
+                  type: string
+                user:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    role:
+                      type: string
+                      example: patient
+
+/auth/logout:
+  post:
+    summary: Logout user
+    tags: [Auth]
+    security:
+      - bearerAuth: []
+    responses:
+      "200":
+        description: Logout successful
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Logout successful
+
+/auth/verify:
+  get:
+    summary: Verify user token
+    tags: [Auth]
+    security:
+      - bearerAuth: []
+    responses:
+      "200":
+        description: Token is valid
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: true
+                user:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    email:
+                      type: string
+                      example: patient@test.com
+                    role:
+                      type: string
+                      example: patient
